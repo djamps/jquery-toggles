@@ -15,9 +15,13 @@ $.fn['toggles'] = function(options) {
       'off': 'OFF' // and off
     },
     'on': false, // is the toggle ON on init
+    'val': '',
+    'onVal': '1', // On value to give to fields
+    'offVal': '0', // Off value to give to fields
     'animate': 250, // animation time
     'transition': 'ease-in-out', // animation transition,
     'checkbox': null, // the checkbox to toggle (for use in forms)
+    'field': null, // the field on which to apply onVal and offVal (for use in forms)
     'clicker': null, // element that can be clicked on to toggle. removes binding from the toggle itself (use nesting)
     'width': 50, // width used if not set in css
     'height': 20, // height if not set in css
@@ -25,10 +29,14 @@ $.fn['toggles'] = function(options) {
   },options);
 
   var selectType = (opts['type'] == 'select');
-
+  
+  if ( opts['val'].length && opts['val'] == opts['onVal'] ) {
+    opts['on'] = true;
+  }
   // ensure these are jquery elements
   opts['checkbox'] = $(opts['checkbox']); // doesnt matter for checkbox
-
+  opts['field'] = $(opts['field']); // doesnt matter for checkbox
+  
   if (opts['clicker']) opts['clicker'] = $(opts['clicker']); // leave as null if not set
 
   // use native transitions if possible
@@ -57,8 +65,20 @@ $.fn['toggles'] = function(options) {
     slide.find('.toggle-off').toggleClass('active');
     slide.find('.toggle-on').toggleClass('active');
 
-    // toggle the checkbox, if there is one
-    opts['checkbox'].prop('checked',active);
+    // toggle the checkbox or update the field, if there is one
+    // Delay the event allowing animation to finish
+    setTimeout(function() {
+        // Only change/fire event if needed
+        if ( opts['checkbox'].prop('checked') != active ) { 
+            opts['checkbox'].prop('checked',active);
+            opts['checkbox'].trigger('change');
+        }
+        // Only change/fire event if needed
+        if ( opts['field'].val() != (active?opts['onVal']:opts['offVal']) ){ 
+            opts['field'].val(active?opts['onVal']:opts['offVal']);
+            opts['field'].trigger('change');
+        }
+    },opts['animate']);
 
     if (selectType) return;
 
@@ -146,9 +166,9 @@ $.fn['toggles'] = function(options) {
 
       // stop bubbling
       if (e) e.stopPropagation();
-
-      doToggle(slide,width,height);
+      
       toggle.trigger('toggle',!active);
+      doToggle(slide,width,height);
     });
 
     // setup events for toggling on or off
