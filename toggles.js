@@ -21,7 +21,7 @@ $.fn['toggles'] = function(options) {
     'animate': 250, // animation time
     'transition': 'ease-in-out', // animation transition,
     'checkbox': null, // the checkbox to toggle (for use in forms)
-    'field': null, // the field on which to apply onVal and offVal (for use in forms)
+    'field': this, // the field on which to apply onVal and offVal (for use in forms)
     'clicker': null, // element that can be clicked on to toggle. removes binding from the toggle itself (use nesting)
     'width': 50, // width used if not set in css
     'height': 20, // height if not set in css
